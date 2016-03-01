@@ -1,7 +1,7 @@
 *-----------------------------------------------------------
 * Title      : 
 * Written by : Kei C.
-* Date       :
+* Date       : 3/1/2016
 * Description: Gets value of two addresses in hex format
 *-----------------------------------------------------------
     ORG    $1000
@@ -98,19 +98,12 @@ LOOP: ; conversion loop
     BLE     NINE_OR_LESS
 CONT:    
     OR.B    (A1)+,D0 ; add byte value to D0, move A1 to next byte
-    
-*    CMPI.B  #$FF,D1 ; check if overflow flag was set last iteration
-*    BEQ     ENDLOOP ;   exit loop if so
 
     SUBI.B  #1,D1 ; decrement D1, which holds # of chars in input
     CMPI.B  #0,D1 ; check if D1 reached 0. if so, end of iteration
     BEQ     SEND_ADDR
     
     ASL.L   #4,D0 ; shift hex digit in D0 left
-    
-    ; overflow flag is set here when first digit hits MSB of D0
-*    SVS.B   D1 
-
     
     BRA     LOOP 
     
