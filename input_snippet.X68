@@ -23,8 +23,8 @@ INPUT_HANDLER:
                 ; length gets stored in D1
     
     ; can check for invalid length first
-    ; address must be between $1000 (lowest 4-digit) and $FFFFFF (highest 6-digit) inclusive
-    CMP.B   #3,D1
+    ; address must be between $0 and $FFFFFF (highest 6-digit) inclusive
+    CMP.B   #0,D1
     BLE     INVALID
     CMP.B   #7,D1
     BGE     INVALID
@@ -53,9 +53,10 @@ ENDLOOP:
     TRAP    #15 ; read starting address as ascii. stores it in (A1) as a buffer. 
                 ; length gets stored in D1
 
+
     ; can check for invalid length first
-    ; address must be between $1000 (lowest 4-digit) and $FFFFFF (highest 6-digit) inclusive
-    CMP.B   #3,D1
+    ; address must be between $0 and $FFFFFF (highest 6-digit) inclusive
+    CMP.B   #0,D1
     BLE     INVALID
     CMP.B   #7,D1
     BGE     INVALID
@@ -75,13 +76,18 @@ SEND_ADDR: ; gets called after conversion loop. puts the address value in memory
     BRA ENDLOOP
 SEND_END_ADDR:
     MOVEA.L D0,A4 ; A4 is ending address
+    CMPA.L  A3,A4
+    BGT     INVALID ; starting addr > ending addr
     BRA END    
     
 INVALID:
     LEA     INVALID_MSG,A1
     MOVE.B  #14,D0
     TRAP    #15 ; display error message
+    CMPA.L  #$00000000,A3
+    BNE     ENDLOOP ; if 1st addr is already filled, goto second input loop
     BRA     INPUT_HANDLER ; go back to starting prompt
+    
 CHECKLOOP: ; loop that checks for invalid characters in an address
     CMPI.B  #$47,(A2) ; checks if character is over 'F'
     BGE     INVALID
@@ -128,6 +134,7 @@ INVALID_MSG DC.B    'Invalid input!',CR,LF,0
 ADDR_BUFFER DS.B    80
 
     END    START        ; last line of source
+
 
 *~Font name~Courier New~
 *~Font size~12~
