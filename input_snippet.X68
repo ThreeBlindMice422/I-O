@@ -76,8 +76,10 @@ SEND_ADDR: ; gets called after conversion loop. puts the address value in memory
     BRA ENDLOOP
 SEND_END_ADDR:
     MOVEA.L D0,A4 ; A4 is ending address
-    CMPA.L  A3,A4
+    CMPA.L  A4,A3
     BGT     INVALID ; starting addr > ending addr
+    MOVE.L  A3,START_ADDR 
+    MOVE.L  A4,END_ADDR
     BRA END    
     
 INVALID:
@@ -132,6 +134,8 @@ PROMPTST    DC.B    'Enter starting address in hex:',CR,LF,0
 PROMPTEND   DC.B    'Enter ending address in hex:',CR,LF,0
 INVALID_MSG DC.B    'Invalid input!',CR,LF,0
 ADDR_BUFFER DS.B    80
+START_ADDR  DS.L    80
+END_ADDR    DS.L    80
 
     END    START        ; last line of source
 
