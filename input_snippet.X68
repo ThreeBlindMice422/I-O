@@ -28,6 +28,7 @@ INPUT_HANDLER:
     BLE     INVALID
     CMP.B   #7,D1
     BGE     INVALID
+
     
     ; temporarily store string length value in D2
     ; and store address in A2 (D1, A1 for use in LOOP later)
@@ -36,7 +37,7 @@ INPUT_HANDLER:
     ; check for invalid characters
     BRA     CHECKLOOP
     
-CLEARED: ; address is valid
+CLEARED: ; address is valid so far
     CLR.L   D0
     BRA     LOOP ; go to conversion loop
 
@@ -69,6 +70,11 @@ ENDLOOP:
     BRA     CHECKLOOP
 
 SEND_ADDR: ; gets called after conversion loop. puts the address value in memory.
+    
+    ; now check for odd address
+    BTST.L  #0,D0   ; checks if bit 0 of address is set, which indicates odd address
+    BNE     INVALID
+    
     CMPA.L   #$00000000,A3 ; if A3 (soon to be the input address) is already filled,
                            ; go to SEND_END_ADDR instead 
     BNE     SEND_END_ADDR
@@ -138,6 +144,7 @@ START_ADDR  DS.L    80
 END_ADDR    DS.L    80
 
     END    START        ; last line of source
+
 
 
 *~Font name~Courier New~
