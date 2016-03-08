@@ -6,9 +6,9 @@
 *-----------------------------------------------------------
     ORG    $1000
 START:                  ; first instruction of program
-    MOVE.B  #128,D3
-    MOVE.B  D3,D2
-    LEA     DATA_BUFFER,A2
+    MOVE.B  #128,BUFFER_COUNTER
+    MOVE.B  BUFFER_COUNTER,D2
+    LEA     BUFFER,A2
     MOVEA.L A2,A3
 POPULATE:                ; will remove from final program
     MOVE.B  #$4D,(A3)+
@@ -18,8 +18,7 @@ POPULATE:                ; will remove from final program
     BRA POPULATE
 NEXT:
     MOVE.B  #25,D2 ; output x lines at a time
-    MOVE.B  D3,D4 ; store 128 (size of buffer)
-    MOVE.B  D2,D3 ; store x
+    MOVE.B  D2,D3 ; store x for reloading
     MOVE.B  #1,D1 ; 1 byte long
     BRA OUTLOOP
 OUTLOOP:
@@ -27,8 +26,8 @@ OUTLOOP:
     ADDA.W  #1,A2
     MOVE.B  #0,D0 ; output string at A1 with CRLF
     TRAP    #15
-    SUBI.B  #1,D4 ; decrement D4 (128~0)
-    CMPI.B  #0,D4 ; if all data is read, go to end
+    SUBI.B  #1,BUFFER_COUNTER ; decrement counter
+    CMPI.B  #0,BUFFER_COUNTER ; if all data is read, go to end
     BEQ     END
     SUBI.B  #1,D2 ; decrement D2 (x~0)
     CMPI.B  #0,D2 ; if the x lines are displayed, goto branch
@@ -66,7 +65,8 @@ LF  EQU $0A
 LOAD_MORE     DC.B    CR,LF,'Press enter to load more...',0
 START_OVER    DC.B    CR,LF,'That was exciting! Would you like to try again? (1: yes, other keys: no)',CR,LF,0
 END_PROCESS   DC.B    CR,LF,':( See you again soon!',0
-DATA_BUFFER   DS.B    128
+BUFFER   DS.B    128 ; remove from integration
+BUFFER_COUNTER DS.B   1 ; remove from integration
 
     END    START        ; last line of source
 
