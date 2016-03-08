@@ -75,10 +75,12 @@ SEND_ADDR: ; gets called after conversion loop. puts the address value in memory
     BTST.L  #0,D0   ; checks if bit 0 of address is set, which indicates odd address
     BNE     INVALID
     
-    CMPA.L   #$00000000,A3 ; if A3 (soon to be the input address) is already filled,
-                           ; go to SEND_END_ADDR instead 
-    BNE     SEND_END_ADDR
+    CMPI.B   #1,D3 ; if starting address flag is set, go to SEND_END_ADDR instead 
+    
+    BEQ     SEND_END_ADDR
+    
     MOVEA.L  D0,A3
+    MOVE.B   #1,D3 ; flag set for successfully entering starting address
     BRA ENDLOOP
 SEND_END_ADDR:
     MOVEA.L D0,A4 ; A4 is ending address
@@ -92,8 +94,8 @@ INVALID:
     LEA     INVALID_MSG,A1
     MOVE.B  #14,D0
     TRAP    #15 ; display error message
-    CMPA.L  #$00000000,A3
-    BNE     ENDLOOP ; if 1st addr is already filled, goto second input loop
+    CMPI.B  #1,D3
+    BNE     ENDLOOP ; if 1st addr is already set, goto second input loop
     BRA     INPUT_HANDLER ; go back to starting prompt
     
 CHECKLOOP: ; loop that checks for invalid characters in an address
@@ -144,6 +146,7 @@ START_ADDR  DS.L    80
 END_ADDR    DS.L    80
 
     END    START        ; last line of source
+
 
 
 
