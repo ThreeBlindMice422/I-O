@@ -1,5 +1,5 @@
 *-----------------------------------------------------------
-* Title      : 
+* Title      : input snippet
 * Written by : Kei C.
 * Date       : 3/1/2016
 * Description: Gets value of two addresses in hex format
@@ -9,14 +9,19 @@ START:
     LEA     WELCOME,A1 
     MOVE.B  #14,D0
     TRAP    #15 ; display welcome
+
+    LEA     HINT,A1
+    MOVE.B  #14,D0
+    TRAP    #15 ; display hint
+    
     BRA     INPUT_HANDLER
     
 INPUT_HANDLER:                  
-
+    
     LEA     PROMPTST,A1 
     MOVE.B  #14,D0
     TRAP    #15 ; display st address prompt
-    
+
     LEA     ADDR_BUFFER,A1
     MOVE.B  #2,D0
     TRAP    #15 ; read starting address as ascii. stores it in (A1) as a buffer. 
@@ -95,7 +100,7 @@ INVALID:
     MOVE.B  #14,D0
     TRAP    #15 ; display error message
     CMPI.B  #1,D3
-    BNE     ENDLOOP ; if 1st addr is already set, goto second input loop
+    BEQ     ENDLOOP ; if 1st addr is already set, goto second input loop
     BRA     INPUT_HANDLER ; go back to starting prompt
     
 CHECKLOOP: ; loop that checks for invalid characters in an address
@@ -137,10 +142,11 @@ END:
 CR  EQU $0D
 LF  EQU $0A
 
-WELCOME     DC.B    'Welcome to the disassembler!',CR,LF,0
+WELCOME     DC.B    'Welcome to the disassembler!',CR,LF,CR,LF,0
+HINT        DC.B    'Hint: Addresses must be between 0 to FFFFFF inclusive, an even number,',CR,LF,'and the starting address must be less than the ending address.',CR,LF,CR,LF,0
 PROMPTST    DC.B    'Enter starting address in hex:',CR,LF,0
 PROMPTEND   DC.B    'Enter ending address in hex:',CR,LF,0
-INVALID_MSG DC.B    'Invalid input!',CR,LF,0
+INVALID_MSG DC.B    'Invalid input!',CR,LF,CR,LF,0
 ADDR_BUFFER DS.B    80
 START_ADDR  DS.L    80
 END_ADDR    DS.L    80
